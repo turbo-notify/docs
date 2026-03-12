@@ -1,81 +1,148 @@
-# Public API Specification
+# API Documentation
 
-> Source of truth for the Turbo Notify client-facing REST API.
-
----
-
-## Scope
-
-This directory defines the public contract consumed by Turbo Notify clients.
-
-- This contract has **global impact** (`api`, `landing`, `dashboard`, support, runbooks).
-- In this project phase, **documentation is authoritative** and may lead implementation.
-- Breaking changes are allowed before production, but cross-module inconsistency is not.
-
-Snapshot date: **March 12, 2026**.
+> Complete API specification for Turbo Notify platform.
 
 ---
 
-## Official Stack
+## Overview
 
-- Backend API stack: **Python + FastAPI**
-- Shared rate-limiting stack: **rate-sync + redis** (production required)
-- Public contract base URL: `https://api.turbonotify.com`
+This directory contains API documentation organized by **audience**:
 
----
-
-## Canonical Endpoints
-
-| Category | Endpoints |
-|----------|-----------|
-| Messages | `POST /messages`, `GET /messages/{messageID}/status` |
-| Extra Numbers | `POST /extra-numbers`, `GET /extra-numbers`, `GET /extra-numbers/{alias}/status`, `POST /extra-numbers/activate`, `POST /extra-numbers/deactivate`, `DELETE /extra-numbers/{alias}` |
-| Reactions | `POST /reactions` |
-| Typing Indicator | `POST /typing-indicator` |
-
-Webhook configuration is account-level (single URL/secret in dashboard) and applies to the main sender plus all extra numbers.
-Async endpoints (`POST /messages`, `POST /reactions`, `POST /typing-indicator`) return `202 Accepted` and complete via webhook events.
-Rate-limit behavior is defined by tenant isolation plus contracted tier entitlement.
+| Directory | Audience | Visibility | Description |
+|-----------|----------|------------|-------------|
+| [`public/`](public/README.md) | External developers | Public | Client-facing REST API for Turbo Notify integrations |
+| [`dashboard/`](dashboard/README.md) | Dashboard frontend | Internal | Admin dashboard BFF endpoints |
+| [`landing/`](landing/README.md) | Landing frontend | Internal | Marketing site BFF endpoints |
 
 ---
 
-## Common Error Shape
+## Architecture
 
-```json
-{
-  "error": "internal_error"
-}
+```
+                          External Developers
+                                  │
+                                  ▼
+                    ┌─────────────────────────┐
+                    │     Public API          │
+                    │  api.turbonotify.com    │
+                    │  (Python + FastAPI)     │
+                    └─────────────────────────┘
+                                  │
+        ┌─────────────────────────┼─────────────────────────┐
+        │                         │                         │
+        ▼                         ▼                         ▼
+┌───────────────┐       ┌───────────────┐       ┌───────────────┐
+│   Dashboard   │       │    Landing    │       │   Workers     │
+│   Frontend    │       │   Frontend    │       │   (Python)    │
+│   (Next.js)   │       │   (Next.js)   │       └───────────────┘
+└───────┬───────┘       └───────┬───────┘
+        │                       │
+        ▼                       ▼
+┌───────────────┐       ┌───────────────┐
+│ Dashboard BFF │       │  Landing BFF  │
+│  (FastAPI)*   │       │  (FastAPI)*   │
+└───────────────┘       └───────────────┘
+
+* Currently Next.js API Routes, migrating to FastAPI
+  See ADR: BFF Migration Strategy
 ```
 
 ---
 
-## Documents
+## API Categories
 
-| Document | Description |
-|----------|-------------|
-| [Authentication](authentication.md) | Access key requirements and auth behavior |
-| [Messages](messages.md) | Send and track messages |
-| [Extra Numbers](extra-numbers.md) | Multi-sender number lifecycle |
-| [Reactions](reactions.md) | Add and remove reactions |
-| [Typing Indicator](typing-indicator.md) | Start/stop typing signal |
-| [Webhooks](webhooks.md) | Event delivery contract and security |
-| [Rate Limits](rate-limits.md) | Usage policy and 429 behavior |
-| [Errors](errors.md) | Complete error reference |
-| [Changelog](changelog.md) | Contract history and breaking changes |
+### Public API (`/public/`)
+
+**For external developers integrating Turbo Notify.**
+
+Core capabilities:
+- **Messages**: Send WhatsApp messages, track delivery status
+- **Extra Numbers**: Manage multiple sender numbers
+- **Reactions**: Add/remove message reactions
+- **Typing Indicator**: Show typing status
+- **Webhooks**: Receive async event notifications
+
+Base URL: `https://api.turbonotify.com`
+
+[Full specification →](public/README.md)
 
 ---
 
-## Synchronization Rule
+### Dashboard API (`/dashboard/`)
 
-Any contract change must update, in the same delivery window:
+**For the admin dashboard frontend.**
 
-1. `/docs/api/*`
-2. `/landing/src/content/docs/**/*`
-3. `/landing/src/features/docs/lib/code-templates/*`
-4. `/api/docs/code-examples/*`
-5. `/docs/api/changelog.md`
+Core capabilities:
+- **Authentication**: Login, session management
+- **Profile**: User profile management
+- **Access Keys**: API key CRUD
+- **Numbers**: Main and extra number management
+- **Billing**: Plans, invoices, payments
+- **Messages**: Message history and stats
+- **Webhooks**: Configuration and delivery history
+- **Overview**: Dashboard KPIs and analytics
 
-Runtime implementation in `/api` must be aligned as soon as possible after docs updates.
+Base URL (target): `https://dashboard-bff.turbonotify.com`
+
+[Full specification →](dashboard/README.md)
+
+---
+
+### Landing API (`/landing/`)
+
+**For the marketing landing page frontend.**
+
+Core capabilities:
+- **Lead Activation**: Multi-step onboarding flow
+- **Analytics**: Event tracking
+- **Contact**: Contact form submission
+- **Waitlist**: Waitlist management
+
+Base URL (target): `https://landing-bff.turbonotify.com`
+
+[Full specification →](landing/README.md)
+
+---
+
+## Technology Stack
+
+| Component | Stack | Status |
+|-----------|-------|--------|
+| **Public API** | Python + FastAPI | Target |
+| **Dashboard BFF** | Next.js API Routes → FastAPI | Migrating |
+| **Landing BFF** | Next.js Server Actions → FastAPI | Migrating |
+| **Rate Limiting** | rate-sync + Redis | Production |
+
+---
+
+## BFF Migration
+
+Dashboard and Landing currently use Next.js built-in API capabilities. We are migrating to separate Python + FastAPI BFF services for:
+
+- **Deployment independence**: Scale frontend and backend separately
+- **Stack unification**: All backend services in Python
+- **Team velocity**: Parallel frontend/backend development
+
+See [ADR: BFF Migration Strategy](../reference/decisions/2026-03-12-bff-migration-strategy.md) for details.
+
+---
+
+## Synchronization Rules
+
+### Public API Changes
+
+Any change to public API contract must update:
+
+1. `/docs/api/public/*` - Source of truth
+2. `/landing/src/content/docs/**/*` - User-facing docs
+3. `/docs/api/public/changelog.md` - Change history
+
+### Internal API Changes
+
+Dashboard and Landing API changes should update:
+
+1. Respective documentation in `/docs/api/{dashboard,landing}/`
+2. Architecture docs if significant
 
 ---
 
@@ -83,3 +150,5 @@ Runtime implementation in `/api` must be aligned as soon as possible after docs 
 
 - [Public API Governance](../reference/public-api-governance.md)
 - [API Contract Alignment](../architecture/api-contract-alignment.md)
+- [API Standards](../standards/api-standards.md)
+- [BFF Migration Strategy](../reference/decisions/2026-03-12-bff-migration-strategy.md)

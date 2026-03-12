@@ -97,4 +97,4 @@ Retry-After: 30
 - [Messages](messages.md)
 - [Errors](errors.md)
 - [Changelog](changelog.md)
-- [ADR: rate-sync as Mandatory Rate-Limiting Engine](../reference/decisions/2026-03-12-rate-sync-rate-limiting.md)
+- [ADR: rate-sync as Mandatory Rate-Limiting Engine](../../reference/decisions/2026-03-12-rate-sync-rate-limiting.md)

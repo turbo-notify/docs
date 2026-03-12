@@ -41,5 +41,5 @@ Contract reaffirmed as documentation-first and globally synchronized.
 
 ## Related
 
-- [API Overview](README.md)
-- [Public API Governance](../reference/public-api-governance.md)
+- [API Overview](../README.md)
+- [Public API Governance](../../reference/public-api-governance.md)

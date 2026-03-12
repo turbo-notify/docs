@@ -43,13 +43,17 @@ Operational guides and troubleshooting:
 | How the system works | [Ecosystem Architecture](architecture/ecosystem-architecture.md) |
 | User-facing vs internal API | [API Contract Alignment](architecture/api-contract-alignment.md) |
 | Global API change workflow | [Public API Governance](reference/public-api-governance.md) |
-| Public API endpoints | [Public API Specification](api/README.md) |
+| **All API documentation** | [API Overview](api/README.md) |
+| Public API endpoints | [Public API Specification](api/public/README.md) |
+| Dashboard API (internal) | [Dashboard API](api/dashboard/README.md) |
+| Landing API (internal) | [Landing API](api/landing/README.md) |
 | Session management | [Session Lifecycle](architecture/session-lifecycle.md) |
 | Worker design | [Worker Architecture](architecture/worker-architecture.md) |
 | Authentication system | [Authentication Flow](architecture/authentication-flow.md) |
 | Event messaging | [NATS Events](architecture/nats-events.md) |
 | Database structure | [Database Schema](architecture/database-schema.md) |
-| Rate-limit standard | [ADR: rate-sync as Mandatory Rate-Limiting Engine](reference/decisions/2026-03-12-rate-sync-rate-limiting.md) |
+| Rate-limit standard | [ADR: rate-sync](reference/decisions/2026-03-12-rate-sync-rate-limiting.md) |
+| BFF migration plan | [ADR: BFF Migration](reference/decisions/2026-03-12-bff-migration-strategy.md) |
 | Business terminology | [Glossary](reference/glossary.md) |
 | Architecture decisions | [ADRs](reference/decisions/) |
 
@@ -75,7 +79,7 @@ Operational guides and troubleshooting:
 |--------------|-----------|
 | New NATS event | [NATS Events](architecture/nats-events.md) |
 | New API endpoint | [API Standards](standards/api-standards.md) |
-| Rate-limit policy | [Rate Limits](api/rate-limits.md) |
+| Rate-limit policy | [Rate Limits](api/public/rate-limits.md) |
 | New metric | [Metrics Guide](observability/metrics-guide.md) |
 
 ---
@@ -102,8 +106,11 @@ nats stream ls
 
 | Purpose | Location |
 |---------|----------|
-| Public API contract (source of truth) | `docs/api/README.md` |
-| FastAPI entry point (target) | `api/src/main.py` |
+| API documentation (all) | `docs/api/README.md` |
+| Public API contract | `docs/api/public/README.md` |
+| Dashboard BFF contract | `docs/api/dashboard/README.md` |
+| Landing BFF contract | `docs/api/landing/README.md` |
+| FastAPI entry point | `api/src/main.py` |
 | Landing customer docs | `landing/src/content/docs/` |
 | Landing code templates | `landing/src/features/docs/lib/code-templates/` |
 
@@ -113,7 +120,8 @@ nats stream ls
 |---------|-----|
 | API (local) | `http://localhost:8000` |
 | NATS Monitor | `http://localhost:8222` |
-| Dashboard (local) | `http://localhost:3000` |
+| Dashboard (local) | `http://localhost:3020` |
+| Landing (local) | `http://localhost:3000` |
 
 ---
 
@@ -130,17 +138,23 @@ docs/
 │   ├── pitch.md
 │   └── overview.md
 │
-├── api/                   ← Public API contract
-│   ├── README.md
-│   ├── authentication.md
-│   ├── messages.md
-│   ├── extra-numbers.md
-│   ├── reactions.md
-│   ├── typing-indicator.md
-│   ├── webhooks.md
-│   ├── errors.md
-│   ├── rate-limits.md
-│   └── changelog.md
+├── api/                   ← API documentation
+│   ├── README.md          ← API overview
+│   ├── public/            ← Public API (external devs)
+│   │   ├── README.md
+│   │   ├── authentication.md
+│   │   ├── messages.md
+│   │   ├── extra-numbers.md
+│   │   ├── reactions.md
+│   │   ├── typing-indicator.md
+│   │   ├── webhooks.md
+│   │   ├── errors.md
+│   │   ├── rate-limits.md
+│   │   └── changelog.md
+│   ├── dashboard/         ← Dashboard BFF (internal)
+│   │   └── README.md
+│   └── landing/           ← Landing BFF (internal)
+│       └── README.md
 │
 ├── architecture/          ← System design
 │   ├── ecosystem-architecture.md
@@ -179,4 +193,7 @@ docs/
     ├── public-api-governance.md
     ├── project-guidelines.md
     └── decisions/         ← ADRs
+        ├── 0001-python-fastapi-stack.md
+        ├── 2026-03-12-rate-sync-rate-limiting.md
+        └── 2026-03-12-bff-migration-strategy.md
 ```
