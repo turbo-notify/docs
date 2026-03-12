@@ -1,0 +1,26 @@
+# =============================================================================
+# PROPRIEDADE INTELECTUAL - NÃO ENTREGAR
+# =============================================================================
+# Este repo é entregável - .claude/ e IDE configs devem ser ignorados
+.claude/
+.codex/
+.cursor/
+.gemini/
+.openai/
+
+# =============================================================================
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporários
+*.tmp
+*.bak
