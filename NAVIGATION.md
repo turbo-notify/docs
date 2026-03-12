@@ -92,11 +92,14 @@ Operational guides and troubleshooting:
 # Start development environment
 docker-compose up -d
 
-# Run API locally
-cd api && poetry run uvicorn src.main:app --reload
+# Run Landing API locally
+cd landing-api && poetry run python -m interfaces.http
+
+# Run Dashboard API locally
+cd dashboard-api && poetry run python -m interfaces.http
 
 # Run tests
-cd api && poetry run pytest
+cd landing-api && poetry run pytest
 
 # Check NATS streams
 nats stream ls
@@ -110,18 +113,20 @@ nats stream ls
 | Public API contract | `docs/api/public/README.md` |
 | Dashboard BFF contract | `docs/api/dashboard/README.md` |
 | Landing BFF contract | `docs/api/landing/README.md` |
-| FastAPI entry point | `api/src/main.py` |
-| Landing customer docs | `landing/src/content/docs/` |
-| Landing code templates | `landing/src/features/docs/lib/code-templates/` |
+| Landing API entry point | `landing-api/src/interfaces/http/app.py` |
+| Dashboard API entry point | `dashboard-api/src/interfaces/http/app.py` |
+| Landing customer docs | `landing-web/src/content/docs/` |
+| Landing code templates | `landing-web/src/features/docs/lib/code-templates/` |
 
 ### Important URLs
 
 | Service | URL |
 |---------|-----|
-| API (local) | `http://localhost:8000` |
+| Landing API (local) | `http://localhost:8010` |
+| Dashboard API (local) | `http://localhost:8020` |
 | NATS Monitor | `http://localhost:8222` |
-| Dashboard (local) | `http://localhost:3020` |
-| Landing (local) | `http://localhost:3000` |
+| Dashboard Web (local) | `http://localhost:3020` |
+| Landing Web (local) | `http://localhost:3010` |
 
 ---
 

@@ -38,7 +38,12 @@ cd turbo-notity
 ### Step 2: Install Python Dependencies
 
 ```bash
-cd api
+# Landing API
+cd landing-api
+poetry install
+
+# Dashboard API
+cd ../dashboard-api
 poetry install
 ```
 
@@ -88,18 +93,24 @@ In-memory limiter backend is only for isolated local unit tests.
 ### Step 5: Run Migrations
 
 ```bash
-cd api
+cd landing-api
 poetry run alembic upgrade head
 ```
 
-### Step 6: Start the API
+### Step 6: Start the APIs
 
 ```bash
-poetry run uvicorn src.main:app --reload
+# Landing API (port 8010)
+cd landing-api
+poetry run python -m interfaces.http
+
+# Dashboard API (port 8020, in another terminal)
+cd dashboard-api
+poetry run python -m interfaces.http
 ```
 
-API available at: `http://localhost:8000`
-Swagger docs at: `http://localhost:8000/docs`
+Landing API: `http://localhost:8010` (Swagger: `http://localhost:8010/docs`)
+Dashboard API: `http://localhost:8020` (Swagger: `http://localhost:8020/docs`)
 
 ---
 
@@ -107,43 +118,39 @@ Swagger docs at: `http://localhost:8000/docs`
 
 ```
 turbo-notity/
-├── api/                    # Control Plane API
+├── landing-api/           # Landing Page API (Python + FastAPI)
 │   ├── src/
-│   │   ├── main.py        # FastAPI application
-│   │   ├── domain/        # Business logic
-│   │   │   ├── models/    # Domain entities
-│   │   │   ├── services/  # Business services
-│   │   │   └── events/    # Domain events
-│   │   ├── application/   # Use cases
-│   │   │   ├── commands/  # Write operations
-│   │   │   └── queries/   # Read operations
-│   │   ├── infrastructure/
-│   │   │   ├── database/  # SQLAlchemy
-│   │   │   ├── nats/      # NATS client
-│   │   │   └── http/      # HTTP clients
-│   │   └── api/           # REST endpoints
-│   │       ├── v1/        # API version 1
-│   │       └── deps.py    # Dependencies
+│   │   ├── application/   # Use cases, DTOs
+│   │   ├── domain/        # Business entities
+│   │   ├── infrastructure/# DB, Redis, NATS
+│   │   └── interfaces/    # HTTP routes
+│   │       └── http/      # FastAPI app
 │   ├── tests/
-│   ├── alembic/           # Migrations
 │   └── pyproject.toml
 │
-├── workers/               # Session Workers
+├── dashboard-api/         # Dashboard API (Python + FastAPI)
 │   ├── src/
-│   │   ├── main.py
-│   │   ├── session/       # WhatsApp session
-│   │   └── handlers/      # Event handlers
+│   │   ├── application/   # Use cases, DTOs
+│   │   ├── domain/        # Business entities
+│   │   ├── infrastructure/# DB, Redis, NATS
+│   │   └── interfaces/    # HTTP routes
+│   │       └── http/      # FastAPI app
+│   ├── tests/
 │   └── pyproject.toml
 │
-├── orchestrator/          # Session Orchestrator
-│   ├── src/
-│   │   ├── main.py
-│   │   ├── allocator/     # Session allocation
-│   │   └── health/        # Health monitoring
-│   └── pyproject.toml
+├── public-api/            # Control Plane API (Go - legacy)
 │
-├── dashboard/             # Admin Dashboard (Next.js)
-├── landing/               # Marketing Website (Next.js)
+├── shared-core/           # Shared domain library
+│   └── src/shared_core/   # Core entities, infrastructure
+│
+├── shared-api/            # Shared FastAPI library
+│   └── src/shared_api/    # Common API infrastructure
+│
+├── workers/               # Session Workers (future)
+├── orchestrator/          # Session Orchestrator (future)
+│
+├── dashboard-web/         # Admin Dashboard (Next.js)
+├── landing-web/           # Marketing Website (Next.js)
 ├── ops/                   # Infrastructure
 │   ├── docker/
 │   └── scripts/
@@ -198,22 +205,22 @@ Read these documents in order:
 
 1. **Explore the API structure**
    ```bash
-   cd api/src
+   cd landing-api/src
    tree -L 2
    ```
 
 2. **Read the main entry point**
-   - `api/src/main.py` - FastAPI app setup
-   - `api/src/api/v1/` - Route definitions
+   - `landing-api/src/interfaces/http/app.py` - FastAPI app setup
+   - `landing-api/src/interfaces/http/routes/` - Route definitions
 
 3. **Understand the domain layer**
-   - `api/src/domain/models/` - Core entities
-   - `api/src/domain/services/` - Business logic
+   - `landing-api/src/domain/entities/` - Core entities
+   - `landing-api/src/domain/services/` - Business logic
 
 ### Running Tests
 
 ```bash
-cd api
+cd landing-api
 poetry run pytest
 ```
 
@@ -225,8 +232,8 @@ poetry run pytest --cov=src --cov-report=html
 
 ### Adding a New Endpoint
 
-1. Create the route in `api/src/api/v1/`
-2. Add business logic in `domain/services/`
+1. Create the route in `src/interfaces/http/routes/`
+2. Add business logic in `src/domain/services/`
 3. Write tests in `tests/`
 4. Run linting: `poetry run ruff check .`
 5. Run tests: `poetry run pytest`

@@ -9,9 +9,9 @@
 This alignment covers:
 
 - canonical contract docs in `/docs/api`
-- customer docs in `landing`
-- code examples in `landing` and `api/docs`
-- FastAPI runtime migration in `api`
+- customer docs in `landing-web`
+- code examples in `landing-web` and `landing-api/docs`
+- FastAPI runtime in `landing-api` and `dashboard-api`
 
 Snapshot date: **March 12, 2026**.
 
@@ -39,10 +39,10 @@ Snapshot date: **March 12, 2026**.
 | Layer | Source |
 |-------|--------|
 | Contract authority | `/docs/api/*.md` |
-| User docs | `/landing/src/content/docs/**/*.mdx` |
-| Landing code samples | `/landing/src/features/docs/lib/code-templates/*.ts` |
-| API module code samples | `/api/docs/code-examples/*.ts` |
-| Runtime target | FastAPI implementation in `/api` (migration phase) |
+| User docs | `/landing-web/src/content/docs/**/*.mdx` |
+| Landing code samples | `/landing-web/src/features/docs/lib/code-templates/*.ts` |
+| API module code samples | `/landing-api/docs/code-examples/*.ts` |
+| Runtime implementation | FastAPI in `/landing-api` and `/dashboard-api` |
 
 ---
 

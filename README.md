@@ -13,14 +13,14 @@
 | **Public API Specification** | `/docs/api/` | Authoritative API contract (endpoints, webhooks, errors) |
 | **Public API Governance** | `/docs/reference/public-api-governance.md` | Global change process and cross-module impact mapping |
 | **Architecture** | `/docs/architecture/` | System design, data models, NATS events |
-| **User-Facing Docs** | `/landing/src/content/docs/` | Customer documentation (derived from `/docs/api/`) |
+| **User-Facing Docs** | `/landing-web/src/content/docs/` | Customer documentation (derived from `/docs/api/`) |
 | **Contract Alignment** | `/docs/architecture/api-contract-alignment.md` | External-to-internal API mapping |
 
 When implementing features:
 1. **API changes** → Update `/docs/api/` first (source of truth)
 2. **Architecture** → Check `/docs/architecture/` for design guidance
 3. **Standards** → Follow patterns in `/docs/standards/`
-4. **User docs** → Sync `/landing/src/content/docs/` from `/docs/api/`
+4. **User docs** → Sync `/landing-web/src/content/docs/` from `/docs/api/`
 
 Current contract snapshot and governance workflow: see `/docs/reference/public-api-governance.md` (validated on March 12, 2026).
 
@@ -116,11 +116,15 @@ The system is **not fully stateless**. It implements a **minimal-state session r
 
 | Component | Description | Technology |
 |-----------|-------------|------------|
-| `api/` | Control Plane API | Python + FastAPI |
-| `workers/` | Session Workers | Python + asyncio |
-| `orchestrator/` | Session Orchestrator | Python |
-| `dashboard/` | Admin Dashboard | Next.js |
-| `landing/` | Marketing Website | Next.js |
+| `landing-api/` | Landing Page API | Python + FastAPI |
+| `dashboard-api/` | Dashboard API | Python + FastAPI |
+| `public-api/` | Control Plane API (Go legacy) | Go |
+| `shared-core/` | Shared domain library | Python |
+| `shared-api/` | Shared FastAPI library | Python |
+| `workers/` | Session Workers (future) | Python + asyncio |
+| `orchestrator/` | Session Orchestrator (future) | Python |
+| `dashboard-web/` | Admin Dashboard | Next.js |
+| `landing-web/` | Marketing Website | Next.js |
 | `ops/` | Infrastructure & DevOps | Docker, Scripts |
 
 ---

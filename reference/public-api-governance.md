@@ -8,9 +8,11 @@
 
 This document defines how API decisions with global impact are governed across:
 
-- `api`
-- `landing`
-- `dashboard`
+- `landing-api`
+- `dashboard-api`
+- `public-api` (legacy)
+- `landing-web`
+- `dashboard-web`
 - `docs`
 - support/runbooks
 
@@ -51,18 +53,18 @@ As of **March 12, 2026**:
 | Source | Role |
 |--------|------|
 | `/docs/api/*.md` | Authoritative public contract |
-| `/landing/src/content/docs/**/*.mdx` | Customer-facing narrative docs |
-| `/landing/src/features/docs/lib/code-templates/*.ts` | Customer code examples |
-| `/api/docs/code-examples/*.ts` | API module code examples |
-| `/api` FastAPI app (in migration) | Runtime implementation target |
+| `/landing-web/src/content/docs/**/*.mdx` | Customer-facing narrative docs |
+| `/landing-web/src/features/docs/lib/code-templates/*.ts` | Customer code examples |
+| `/landing-api/docs/code-examples/*.ts` | API module code examples |
+| `/landing-api` + `/dashboard-api` FastAPI apps | Runtime implementation |
 
 ---
 
 ## Mandatory Workflow
 
 1. Update `/docs/api/*` first.
-2. Update `landing` docs and examples.
-3. Update `api/docs/code-examples`.
+2. Update `landing-web` docs and examples.
+3. Update `landing-api/docs/code-examples`.
 4. Register change in `/docs/api/changelog.md`.
 5. Align FastAPI runtime implementation.
 
@@ -72,10 +74,10 @@ A change is incomplete if one of the first four steps is missing.
 
 ## PR Checklist
 
-- [ ] Endpoint names, payloads and status codes are consistent across `/docs/api`, `landing` docs, and code examples.
+- [ ] Endpoint names, payloads and status codes are consistent across `/docs/api`, `landing-web` docs, and code examples.
 - [ ] Rate-limit behavior is documented with tenant + tiering rules and aligned `429` semantics.
 - [ ] Changelog has exact date and breaking-change notes when applicable.
-- [ ] FastAPI migration impact is recorded when runtime still differs from docs.
+- [ ] FastAPI implementation impact is recorded when runtime still differs from docs.
 
 ---
 
