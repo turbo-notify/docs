@@ -215,7 +215,7 @@ Counter of webhook delivery attempts.
 
 **Labels:**
 - `tenant_id` - Tenant identifier
-- `event_type` - Event type (message.received, message.status)
+- `event_type` - Event type (message.received, message.sent, message.failed)
 - `status` - Delivery status (success, failed, timeout)
 
 **Example Queries:**

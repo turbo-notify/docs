@@ -234,6 +234,8 @@ GET /v1/sessions?fields=id,status,phoneNumber
 
 ## Rate Limiting
 
+Platform standard: shared limiter engine is `rate-sync` with `redis` backend in production.
+
 Headers in response:
 
 ```http
@@ -285,12 +287,17 @@ X-Webhook-Signature: sha256=<hmac>
 
 ```json
 {
-  "event": "message.received",
+  "id": "evt_abc123",
+  "type": "message.received",
   "timestamp": "2024-01-15T10:30:00Z",
   "data": {
-    "messageId": "msg_abc123",
-    "from": "+5511888888888",
-    "content": "Hello!"
+    "message_id": "msg_abc123",
+    "from": {
+      "number": "+5511888888888"
+    },
+    "content": {
+      "text": "Hello!"
+    }
   }
 }
 ```

@@ -10,15 +10,19 @@
 
 | Documentation Type | Location | Purpose |
 |--------------------|----------|---------|
-| **Architecture** | `/docs/` (here) | System design, data models, NATS events, standards |
-| **User-Facing API** | `/landing/src/content/docs/` | External API contract for customers |
-| **Contract Alignment** | `/docs/architecture/api-contract-alignment.md` | Mapping between external and internal APIs |
+| **Public API Specification** | `/docs/api/` | Authoritative API contract (endpoints, webhooks, errors) |
+| **Public API Governance** | `/docs/reference/public-api-governance.md` | Global change process and cross-module impact mapping |
+| **Architecture** | `/docs/architecture/` | System design, data models, NATS events |
+| **User-Facing Docs** | `/landing/src/content/docs/` | Customer documentation (derived from `/docs/api/`) |
+| **Contract Alignment** | `/docs/architecture/api-contract-alignment.md` | External-to-internal API mapping |
 
 When implementing features:
-1. Check `/docs/architecture/` for design guidance
-2. Follow patterns in `/docs/standards/`
-3. Verify alignment with user-facing API contract
-4. Update docs when architectural decisions change
+1. **API changes** → Update `/docs/api/` first (source of truth)
+2. **Architecture** → Check `/docs/architecture/` for design guidance
+3. **Standards** → Follow patterns in `/docs/standards/`
+4. **User docs** → Sync `/landing/src/content/docs/` from `/docs/api/`
+
+Current contract snapshot and governance workflow: see `/docs/reference/public-api-governance.md` (validated on March 12, 2026).
 
 ---
 
@@ -98,11 +102,12 @@ The system is **not fully stateless**. It implements a **minimal-state session r
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
-| **API** | Python 3.13 + FastAPI | Control plane, REST API |
+| **API** | Python + FastAPI | Control plane, REST API |
 | **Workers** | Python + asyncio | WhatsApp session management |
 | **Messaging** | NATS + JetStream | Event-driven communication |
 | **Database** | PostgreSQL | Source of truth |
 | **Storage** | S3-compatible | Media files |
+| **Rate Limiting** | rate-sync + Redis | Shared distributed limits for API/workers/webhooks |
 | **Orchestration** | Custom Python | Session-to-worker allocation |
 
 ---
@@ -122,7 +127,7 @@ The system is **not fully stateless**. It implements a **minimal-state session r
 
 ## System Components
 
-### 1. Control Plane (FastAPI)
+### 1. Control Plane (Python + FastAPI)
 
 Responsibilities:
 - Tenant authentication and management
@@ -159,6 +164,21 @@ Flow:
 ---
 
 ## Documentation Index
+
+### Public API
+
+| Document | Description |
+|----------|-------------|
+| [API Overview](api/README.md) | Public API specification (source of truth) |
+| [Authentication](api/authentication.md) | Access keys and authorization |
+| [Messages](api/messages.md) | Send messages and check status |
+| [Extra Numbers](api/extra-numbers.md) | Multi-sender phone numbers |
+| [Reactions](api/reactions.md) | Emoji reactions on messages |
+| [Typing Indicator](api/typing-indicator.md) | Presence signals |
+| [Webhooks](api/webhooks.md) | Event notifications and delivery policy |
+| [Errors](api/errors.md) | Error codes reference |
+| [Rate Limits](api/rate-limits.md) | Usage limits and quotas |
+| [Changelog](api/changelog.md) | API version history |
 
 ### Product
 
@@ -215,6 +235,7 @@ Flow:
 | Document | Description |
 |----------|-------------|
 | [Glossary](reference/glossary.md) | Terms and definitions |
+| [Public API Governance](reference/public-api-governance.md) | Global API impact and change workflow |
 | [Project Guidelines](reference/project-guidelines.md) | Package management and conventions |
 | [ADRs](reference/decisions/) | Architecture Decision Records |
 
@@ -223,8 +244,8 @@ Flow:
 ## Quick Links
 
 - [Getting Started](guides/onboarding.md)
+- [Public API Reference](api/README.md)
 - [Architecture Overview](architecture/ecosystem-architecture.md)
-- [API Reference](../api/docs/) *(TODO)*
 - [Runbooks](runbooks/README.md)
 
 ---
@@ -233,7 +254,7 @@ Flow:
 
 ### Phase 1 - MVP (Single VPS)
 
-- FastAPI + NATS + PostgreSQL
+- FastAPI API + NATS + PostgreSQL
 - 2-3 session workers
 - Basic monitoring
 

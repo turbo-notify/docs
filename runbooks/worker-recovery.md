@@ -196,7 +196,7 @@ If multiple workers fail simultaneously:
 ## Related Runbooks
 
 - [Session Troubleshooting](session-troubleshooting.md)
-- [NATS Issues](nats-issues.md)
+- [Message Troubleshooting](message-troubleshooting.md)
 
 ---
 
@@ -204,3 +204,4 @@ If multiple workers fail simultaneously:
 
 - [Ecosystem Architecture](../architecture/ecosystem-architecture.md)
 - [Observability](../observability/README.md)
+- [NATS Events](../architecture/nats-events.md)

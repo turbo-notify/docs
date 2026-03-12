@@ -52,6 +52,7 @@ graph TB
         PG[(PostgreSQL<br/>Source of Truth)]
         S3[(S3 Storage<br/>Media Files)]
         Redis[(Redis<br/>Cache/Lease)]
+        RS[rate-sync<br/>Limiter Engine]
     end
 
     subgraph "Outbound"
@@ -65,6 +66,7 @@ graph TB
     %% API to data
     API -->|Read/Write| PG
     API -->|Publish Commands| NATS
+    API -->|Acquire limit slots| RS
 
     %% NATS flows
     NATS --> JS
@@ -74,14 +76,17 @@ graph TB
 
     %% Worker data
     W1 & W2 & W3 -.->|Media| S3
+    W1 & W2 & W3 -->|Acquire limit slots| RS
 
     %% Event persistence
     NATS -->|Consume Events| WH
+    WH -->|Acquire delivery slots| RS
     WH -->|Deliver| T1 & T2 & T3
 
     %% Orchestrator data
     ORCH -->|Lease Management| Redis
     ORCH -->|Session State| PG
+    RS -->|Distributed limiter state| Redis
 ```
 
 ---
@@ -99,15 +104,20 @@ The central API that manages all administrative operations.
 - Billing and usage tracking
 - Webhook configuration
 - Dashboard API
+- Enforce inbound rate limits with shared `rate-sync` policies (tenant isolation + tier entitlement)
 
 **Key Endpoints:**
 ```
-POST   /api/v1/sessions           # Create session
-GET    /api/v1/sessions/{id}      # Get session status
-DELETE /api/v1/sessions/{id}      # Delete session
-POST   /api/v1/messages           # Send message
-GET    /api/v1/messages/{id}      # Get message status
-POST   /api/v1/webhooks           # Configure webhook
+POST   /messages                         # Send message
+GET    /messages/{messageID}/status      # Get message status
+POST   /extra-numbers                    # Add extra number
+GET    /extra-numbers                    # List numbers
+GET    /extra-numbers/{alias}/status     # Get number status
+POST   /extra-numbers/activate           # Activate number
+POST   /extra-numbers/deactivate         # Deactivate number
+DELETE /extra-numbers/{alias}            # Remove number
+POST   /reactions                        # Send reaction
+POST   /typing-indicator                 # Send typing indicator
 ```
 
 **Stack:**
@@ -158,6 +168,7 @@ Maintain active WhatsApp Web connections and handle message flow.
 - Receive incoming messages/events
 - Publish events to NATS
 - Handle reconnection
+- Enforce outbound/provider throttling with shared `rate-sync` policies
 
 **Worker State:**
 
@@ -219,11 +230,11 @@ Stores media files:
 - Temporary (auto-expire after delivery)
 - CDN-ready URLs
 
-#### Redis (Optional)
+#### Redis (Required)
 
 Used for:
 - Distributed lease management
-- Rate limiting
+- Distributed `rate-sync` limiter state
 - Session cache
 - Pub/sub for real-time dashboard
 
@@ -244,6 +255,24 @@ Delivers events to tenant endpoints.
 - At-least-once delivery
 - Configurable retry policy
 - Dead-letter queue for inspection
+
+---
+
+### 7. Rate Limit Control (rate-sync)
+
+Shared rate-limiting engine used by API, workers, and webhook dispatcher.
+
+**Standard package:** `rate-sync` (`https://pypi.org/project/rate-sync/`)
+
+**Responsibilities:**
+- Enforce plan and anti-abuse limits consistently across instances
+- Coordinate distributed quotas using Redis-backed limiter state
+- Support both throughput and concurrency controls
+
+**Rules:**
+- No custom per-service throttling logic outside `rate-sync`
+- Production standard is `rate-sync + redis`
+- In-memory backend allowed only for local development/testing
 
 ---
 
@@ -371,7 +400,7 @@ Dedicated clusters:
 
 - Private network between services
 - Public API behind CDN/WAF
-- Rate limiting per tenant
+- Rate limiting with tenant isolation and tier entitlement via shared `rate-sync` policies
 
 ---
 
@@ -381,3 +410,4 @@ Dedicated clusters:
 - [Session Lifecycle](session-lifecycle.md) - Session state machine
 - [Database Schema](database-schema.md) - Data model
 - [Metrics Guide](../observability/metrics-guide.md) - Monitoring
+- [ADR: rate-sync as Mandatory Rate-Limiting Engine](../reference/decisions/2026-03-12-rate-sync-rate-limiting.md)

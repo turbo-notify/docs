@@ -27,35 +27,24 @@ Each runbook follows this structure:
 | Runbook | Description |
 |---------|-------------|
 | [Session Troubleshooting](session-troubleshooting.md) | Session connection issues |
-| [QR Code Authentication](qr-authentication.md) | QR scan failures |
 
 ### Worker Operations
 
 | Runbook | Description |
 |---------|-------------|
 | [Worker Recovery](worker-recovery.md) | Worker crash/failure handling |
-| [Worker Scaling](worker-scaling.md) | Adding/removing workers |
 
 ### Message Delivery
 
 | Runbook | Description |
 |---------|-------------|
 | [Message Troubleshooting](message-troubleshooting.md) | Message send failures |
-| [Media Delivery](media-delivery.md) | Media upload/send issues |
 
 ### Webhook Delivery
 
 | Runbook | Description |
 |---------|-------------|
 | [Webhook Troubleshooting](webhook-troubleshooting.md) | Webhook delivery failures |
-| [Webhook Backlog](webhook-backlog.md) | Large webhook queue |
-
-### Infrastructure
-
-| Runbook | Description |
-|---------|-------------|
-| [Database Issues](database-issues.md) | PostgreSQL problems |
-| [NATS Issues](nats-issues.md) | Message bus problems |
 
 ---
 

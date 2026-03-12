@@ -53,6 +53,7 @@ After discussing languages, frameworks, queues, and databases, we consolidated t
 | **Dashboard** | Next.js | Customer access, consumption display, number/token management |
 | **Ledger** | PostgreSQL | Definitive accounting/audit record, billing base |
 | **Queue** | NATS JetStream | Persistent queue with DLQ and backoff |
+| **Rate Limit Engine** | rate-sync + Redis | Shared distributed limits for API, workers, and webhook dispatcher |
 | **Gateway** | WAHA | WhatsApp sending, operated by Worker |
 
 ## Consequences
@@ -68,7 +69,7 @@ After discussing languages, frameworks, queues, and databases, we consolidated t
 2. Start Dashboard development in Next.js
 3. Define SQL ledger schema in Postgres (with billing indexes)
 4. Configure NATS JetStream with retry and DLQ policies
-5. Document throttling per number/tenant to avoid WhatsApp blocks
+5. Implement and document throttling per number/tenant with `rate-sync + redis`
 
 ---
 

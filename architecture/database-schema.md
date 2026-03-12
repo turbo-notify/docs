@@ -300,17 +300,17 @@ Tenant webhook configuration.
 ```sql
 CREATE TABLE webhooks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id UUID NOT NULL REFERENCES tenants(id),
+    tenant_id UUID NOT NULL UNIQUE REFERENCES tenants(id),
 
     -- Configuration
     url TEXT NOT NULL,
     secret VARCHAR(64),  -- For signature verification
 
     -- Events to deliver
-    events TEXT[] NOT NULL DEFAULT '{"message.received", "message.status"}',
+    events TEXT[] NOT NULL DEFAULT '{"message.received", "message.sent", "message.delivered", "message.read", "message.failed", "message.reaction", "typing.started", "typing.stopped"}',
 
     -- Settings
-    timeout_seconds INTEGER DEFAULT 30,
+    timeout_seconds INTEGER DEFAULT 10,
     max_retries INTEGER DEFAULT 5,
 
     -- Status

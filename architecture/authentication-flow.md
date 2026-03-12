@@ -27,11 +27,11 @@ sequenceDiagram
     participant API as Control Plane
     participant DB as PostgreSQL
 
-    T->>API: POST /api/v1/sessions<br/>Authorization: Bearer <api_key>
+    T->>API: POST /messages<br/>Authorization: Bearer <api_key>
     API->>DB: Validate API key
     DB->>API: tenant_id, scopes
-    API->>API: Check rate limits
-    API->>T: 201 Created / 401 Unauthorized
+    API->>API: Check rate limits (rate-sync + redis)
+    API->>T: 202 Accepted / 403 Forbidden
 ```
 
 ### API Key Format
@@ -49,7 +49,7 @@ tn_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ### Security Measures
 
 - **Hashing**: Keys stored as SHA-256 hash
-- **Rate Limiting**: Per-key and per-tenant limits
+- **Rate Limiting**: Per-key, per-tenant, and tier-entitlement limits via `rate-sync + redis`
 - **Rotation**: Keys can be rotated without downtime
 - **Scopes**: Optional granular permissions
 

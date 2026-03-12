@@ -265,9 +265,88 @@ Storage: Memory
 }
 ```
 
+#### Message Reaction
+
+**Subject:** `turbo.message.reaction.event`
+
+```json
+{
+  "event_id": "evt_msg006",
+  "message_id": "msg_abc123",
+  "tenant_id": "tenant_001",
+  "action": "apply",
+  "reaction": "🎉",
+  "actor": {
+    "number": "+5511999999999"
+  },
+  "operation_id": "op_reaction_001",
+  "timestamp": "2024-01-15T10:36:00Z"
+}
+```
+
+#### Message Reaction Failed
+
+**Subject:** `turbo.message.reaction.failed.event`
+
+```json
+{
+  "event_id": "evt_msg007",
+  "message_id": "msg_abc123",
+  "tenant_id": "tenant_001",
+  "operation_id": "op_reaction_001",
+  "reason": "whatsapp_unavailable",
+  "failed_at": "2024-01-15T10:36:01Z"
+}
+```
+
+#### Typing Started
+
+**Subject:** `turbo.typing.started.event`
+
+```json
+{
+  "event_id": "evt_typing001",
+  "tenant_id": "tenant_001",
+  "operation_id": "op_typing_001",
+  "to": "+5511888888888",
+  "started_at": "2024-01-15T10:37:00Z"
+}
+```
+
+#### Typing Stopped
+
+**Subject:** `turbo.typing.stopped.event`
+
+```json
+{
+  "event_id": "evt_typing002",
+  "tenant_id": "tenant_001",
+  "operation_id": "op_typing_002",
+  "to": "+5511888888888",
+  "stopped_at": "2024-01-15T10:37:10Z"
+}
+```
+
+#### Typing Failed
+
+**Subject:** `turbo.typing.failed.event`
+
+```json
+{
+  "event_id": "evt_typing003",
+  "tenant_id": "tenant_001",
+  "operation_id": "op_typing_003",
+  "to": "+5511888888888",
+  "reason": "whatsapp_unavailable",
+  "failed_at": "2024-01-15T10:37:02Z"
+}
+```
+
 ---
 
 ### Webhook Events
+
+Webhook delivery is asynchronous and must be paced by shared limiter policies (`rate-sync + redis` in production).
 
 #### Webhook Pending
 
@@ -280,6 +359,7 @@ Storage: Memory
   "webhook_url": "https://tenant-app.com/webhooks/whatsapp",
   "event_type": "message.received",
   "payload": { ... },
+  "limiter_id": "webhook_delivery:tenant_001",
   "attempt": 1,
   "max_attempts": 5,
   "created_at": "2024-01-15T10:35:01Z"
@@ -380,6 +460,7 @@ MaxDeliver: 3
 ### Webhook Dispatcher
 
 Delivers webhooks to tenants.
+Uses shared `rate-sync` limiter definitions backed by Redis in production.
 
 ```
 Consumer: webhook-dispatcher

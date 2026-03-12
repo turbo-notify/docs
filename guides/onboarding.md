@@ -57,7 +57,7 @@ DATABASE_URL=postgresql+asyncpg://turbo:turbo@localhost:5432/turbo_notify
 # NATS
 NATS_URL=nats://localhost:4222
 
-# Redis (optional)
+# Redis (required for local integration flows)
 REDIS_URL=redis://localhost:6379
 
 # API
@@ -81,6 +81,9 @@ This starts:
 - PostgreSQL (port 5432)
 - NATS + JetStream (ports 4222, 8222)
 - Redis (port 6379)
+
+Redis is required for shared `rate-sync` limiter behavior in API/workers/webhook dispatcher.
+In-memory limiter backend is only for isolated local unit tests.
 
 ### Step 5: Run Migrations
 

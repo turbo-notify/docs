@@ -175,7 +175,7 @@ ORDER BY created_at DESC;
 ## Related Runbooks
 
 - [Worker Recovery](worker-recovery.md)
-- [QR Code Authentication](qr-authentication.md)
+- [Runbooks Index](README.md)
 
 ---
 

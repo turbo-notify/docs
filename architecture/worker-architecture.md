@@ -15,6 +15,7 @@ Turbo Notify workers are **long-running Python processes** that maintain WhatsAp
 3. **Stateless design** - Persistent state in PostgreSQL, ephemeral in memory
 4. **Graceful degradation** - Handle partial failures without crashing
 5. **Observable** - Structured logging, metrics, distributed tracing
+6. **Shared rate limiting** - Mandatory `rate-sync + redis` across worker fleet
 
 ---
 
@@ -101,6 +102,28 @@ async def main():
         tg.create_task(session_manager.run())
         tg.create_task(heartbeat.run())
         tg.create_task(command_handler(nats, session_manager))
+```
+
+---
+
+## Rate Limit Coordination
+
+Workers must use shared limiter policies via `rate-sync + redis`.
+
+Rules:
+
+- Use `rate-sync` for outbound WhatsApp/provider calls and webhook delivery workers.
+- Do not use worker-local counters as primary throttling mechanism.
+- Keep limiter IDs aligned with Control Plane/API policy definitions.
+- Keep tenant-to-tier mapping aligned with Control Plane entitlement definitions.
+
+```python
+from ratesync import get_or_clone_limiter
+
+async def send_with_limit(tenant_id: str, tier: str, sender_alias: str, payload: dict):
+    limiter = await get_or_clone_limiter(f"whatsapp_send_{tier}", f"{tenant_id}:{sender_alias}")
+    async with limiter.acquire_context(timeout=5.0):
+        return await whatsapp_client.send(payload)
 ```
 
 ---
@@ -522,3 +545,4 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
 - [NATS Events](nats-events.md) - Message contracts
 - [Session Lifecycle](session-lifecycle.md) - State machine details
 - [Observability Overview](/docs/observability/observability-overview.md) - Monitoring
+- [ADR: rate-sync as Mandatory Rate-Limiting Engine](../reference/decisions/2026-03-12-rate-sync-rate-limiting.md)

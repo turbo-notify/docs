@@ -27,6 +27,7 @@ pnpm run <script>
 
 - **Use Poetry** as the package manager
 - Never use pip, uv, pipenv, or conda
+- For rate limiting, use only `rate-sync + redis` (no custom throttling counters)
 
 ```bash
 # Install dependencies
