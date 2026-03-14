@@ -152,6 +152,70 @@ In-memory data store used for caching and distributed coordination.
 
 ---
 
+## Security Terms
+
+### API Key
+
+Long-lived bearer token used for machine-to-machine authentication with the public-api. Format: `tn_live_` or `tn_test_` + 32 random characters. SHA-256 hashed before storage.
+
+### Access Token
+
+Short-lived JWT token (15 minutes) used for API requests after authentication. Contains user ID and tenant context.
+
+### Refresh Token
+
+Long-lived JWT token (7 days) used to obtain new access tokens without re-authentication. Contains JTI for tracking.
+
+### JTI (JWT ID)
+
+Unique identifier for refresh tokens, enabling revocation tracking and token family management.
+
+### Scope
+
+Permission identifier that restricts API key access to specific operations. Format: `resource:action` (e.g., `messages:send`).
+
+### Tenant Isolation
+
+Security principle requiring all database queries to filter by `tenant_id` to prevent cross-tenant data access.
+
+### Authentication
+
+Process of verifying identity (who you are). Turbo Notify uses API Keys for public-api and JWT for dashboard-api.
+
+### Authorization
+
+Process of verifying permissions (what you can do). Implemented via scopes (API keys) and roles (users).
+
+### HSTS (HTTP Strict Transport Security)
+
+Security header forcing browsers to use HTTPS connections only, preventing downgrade attacks.
+
+### CSP (Content Security Policy)
+
+Security header restricting resource loading (scripts, styles, images) to prevent XSS attacks.
+
+### Audit Log
+
+Immutable record of security events (logins, API key usage, access attempts) for compliance and incident response.
+
+### Token Family
+
+Group of refresh tokens sharing a common ancestor, used to detect token reuse attacks.
+
+### TOTP (Time-Based One-Time Password)
+
+2FA method generating time-sensitive codes (e.g., Google Authenticator). Planned for dashboard login.
+
+### Bcrypt
+
+Password hashing algorithm with configurable cost factor (rounds). Used for user passwords (12 rounds production).
+
+### SHA-256
+
+Cryptographic hash function used for API key storage and one-time token hashing (password reset, WhatsApp codes).
+
+---
+
 ## Abbreviations
 
 | Abbreviation | Meaning |
